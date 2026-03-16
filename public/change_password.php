@@ -1,13 +1,14 @@
 <?php
 error_reporting(E_ALL & ~E_NOTICE);
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
+use App\Core\SessionManager;
 use App\Models\User;
 
-require_login();
+Auth::requireLogin();
 
 $userModel = new User();
-
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -16,23 +17,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $new = $_POST['new_password'];
     $confirm = $_POST['confirm_new_password'];
 
+    $userId = Auth::userId();
+    $user = $userModel->getById($userId);
+
     if ($current === "" || $new === "" || $confirm === "") {
         $error = "All fields are required.";
+    } elseif (!$user || !password_verify($current, $user['password'])) {
+        $error = "Current password is incorrect.";
+    } elseif (strlen($new) < 6) {
+        $error = "New password must be at least 6 characters.";
+    } elseif ($new !== $confirm) {
+        $error = "New passwords do not match.";
     } else {
-        // Get logged in user using model
-        $user = $userModel->getById(current_user_id());
-
-        if (!$user || !password_verify($current, $user['password'])) {
-            $error = "Current password is incorrect.";
-        } elseif (strlen($new) < 6) {
-            $error = "New password must be at least 6 characters.";
-        } elseif ($new !== $confirm) {
-            $error = "New passwords do not match.";
-        } else {
-            $userModel->changePassword(current_user_id(), $new);
-            header("Location: home.php");
-            exit();
-        }
+        $userModel->changePassword($userId, $new, $userId);
+        header("Location: home.php");
+        exit();
     }
 }
 ?>
@@ -108,13 +107,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body>
-
 <div class="container">
     <h2>Change Password</h2>
     <a href="home.php">← Back to Home</a><br><br>
 
     <?php if ($error): ?>
-        <div class="error"><?= $error ?></div>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
     <form method="post">
@@ -130,6 +128,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <button type="submit">Update Password</button>
     </form>
 </div>
-
 </body>
 </html>

@@ -1,9 +1,10 @@
 <?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
 use App\Models\User;
 
-require_admin();
+Auth::requireAdmin();
 
 $error = "";
 $allowed_types = ['admin', 'staff', 'teacher', 'student'];
@@ -13,6 +14,7 @@ if (!$id) {
     header("Location: users_list.php");
     exit();
 }
+
 $userModel = new User();
 $user = $userModel->getById($id);
 
@@ -21,17 +23,16 @@ if (!$user) {
     exit();
 }
 
-/* Handle update */
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST['username']);
-    $type = $_POST['account_type'];
+    $type = $_POST['account_type'] ?? '';
 
     if ($username === "" || $type === "") {
         $error = "All fields are required.";
     } elseif (!in_array($type, $allowed_types)) {
         $error = "Invalid account type.";
     } else {
-        $userModel->update($id, $username, $type);
+        $userModel->update($id, $username, $type, Auth::userId());
         header("Location: users_list.php");
         exit();
     }
@@ -108,23 +109,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body>
-
 <div class="container">
     <h2>Edit User</h2>
     <a href="users_list.php">← Back to List</a><br><br>
 
     <?php if ($error): ?>
-        <div class="error"><?= $error ?></div>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
     <form method="post">
         <label>Username</label>
-        <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
+        <input type="text" name="username" 
+               value="<?= isset($username) ? htmlspecialchars($username) : htmlspecialchars($user['username']) ?>" required>
 
         <label>Account Type</label>
         <select name="account_type" required>
             <?php foreach ($allowed_types as $role): ?>
-                <option value="<?= $role ?>" <?= $user['account_type'] === $role ? 'selected' : '' ?>>
+                <option value="<?= $role ?>" 
+                    <?= ((isset($type) && $type === $role) || (!isset($type) && $user['account_type'] === $role)) ? 'selected' : '' ?>>
                     <?= ucfirst($role) ?>
                 </option>
             <?php endforeach; ?>
@@ -133,6 +135,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <button type="submit">Update</button>
     </form>
 </div>
-
 </body>
 </html>

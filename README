@@ -1,0 +1,29 @@
+# School Encoding Module - PHP OOP Refactor
+
+## Overview
+School Encoding Module
+
+## Folder Structure
+- `app/Core/` → Core classes: `Database.php`, `Auth.php`, `SessionManager.php`, `Autoloader.php`
+- `app/Models/` → Business logic models: `User.php`, `Program.php`, `Subject.php`
+- `app/Helpers/` → Optional helpers (Validator, Redirect)
+- `public/` → Frontend pages: login, logout, home, CRUD pages
+- `config/` → Configuration files (e.g., `config.php`)
+- `school.sql` → Database structure and initial data
+
+## Default Admin Credentials
+- **Username:** admin  
+- **Password:** admin12345
+
+## Setup Instructions (XAMPP)
+1. Copy the project folder to `xampp/htdocs/`.
+2. Start Apache and MySQL in XAMPP.
+3. Open `http://localhost/PhpProject_B/` in your browser.
+4. Import `school.sql`:
+   - Open `phpMyAdmin` → Create a database `school` → Import → Choose `school.sql`.
+5. Login using default admin credentials.
+
+## Notes
+- Passwords are hashed.
+- Access control based on roles: admin, staff, teacher, student.
+- OOP architecture with classes handling CRUD, authentication, and sessions.

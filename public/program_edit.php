@@ -1,22 +1,37 @@
 <?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
+use App\Core\SessionManager;
 use App\Models\Program;
 
-require_staff_or_admin();
+Auth::requireStaffOrAdmin();
+
+$role = SessionManager::get('account_type') ?? 'guest';
 
 $programModel = new Program();
 $error = "";
 
-$id = $_GET["program_id"];
+$id = $_GET['program_id'] ?? null;
+
+if (!$id || !is_numeric($id)) {
+    header("Location: program_list.php");
+    exit();
+}
+
 $program = $programModel->getById($id);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if (!$program) {
+    header("Location: program_list.php");
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $code  = trim($_POST["code"]);
     $title = trim($_POST["title"]);
     $years = $_POST["years"];
 
-    if ($code == "" || $title == "") {
+    if ($code === "" || $title === "") {
         $error = "Code and Title are required.";
     } elseif (!is_numeric($years) || $years < 1 || $years > 6) {
         $error = "Years must be between 1 and 6.";
@@ -130,17 +145,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <h2>Edit Program</h2>
         <a href="program_list.php">← Back to List</a><br><br>
-        <?php if ($error) echo "<div class='error'>$error</div>"; ?>
+
+        <?php if ($error): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
         <form method="post">
             <label>Code</label>
-            <input type="text" name="code" value="<?= $program['code'] ?>">
+            <input type="text" name="code" value="<?= htmlspecialchars($_POST['code'] ?? $program['code']) ?>">
 
             <label>Title</label>
-            <input type="text" name="title" value="<?= $program['title'] ?>">
+            <input type="text" name="title" value="<?= htmlspecialchars($_POST['title'] ?? $program['title']) ?>">
 
             <label>Years</label>
-            <input type="number" name="years" value="<?= $program['years'] ?>">
+            <input type="number" name="years" value="<?= htmlspecialchars($_POST['years'] ?? $program['years']) ?>">
 
             <button type="submit">Update</button>
         </form>

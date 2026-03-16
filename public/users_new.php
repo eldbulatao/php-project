@@ -1,9 +1,10 @@
 <?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
 use App\Models\User;
 
-require_admin();
+Auth::requireAdmin();
 
 $userModel = new User();
 
@@ -24,20 +25,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Password must be at least 6 characters.";
     } elseif ($pass !== $confirm) {
         $error = "Passwords do not match.";
+    } elseif ($userModel->findByUsername($username)) {
+        $error = "Username already exists.";
     } else {
-        if ($userModel->findByUsername($username)) {
-            $error = "Username already exists.";
-        } else {
-            $userModel->create(
-                $username,
-                $pass,
-                $type,
-                current_user_id()
-            );
-
-            header("Location: users_list.php");
-            exit();
-        }
+        $userModel->create(
+            $username,
+            $pass,
+            $type,
+            Auth::userId()
+        );
+        header("Location: users_list.php");
+        exit();
     }
 }
 ?>
@@ -117,12 +115,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <a href="users_list.php">← Back to List</a><br><br>
 
     <?php if ($error): ?>
-        <div class="error"><?= $error ?></div>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
     <form method="post">
         <label>Username</label>
-        <input type="text" name="username" required>
+        <input type="text" name="username" value="<?= isset($username) ? htmlspecialchars($username) : '' ?>" required>
 
         <label>Password</label>
         <input type="password" name="password" required>
@@ -133,10 +131,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <label>Account Type</label>
         <select name="account_type" required>
             <option value="">-- Select Role --</option>
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
-            <option value="teacher">Teacher</option>
-            <option value="student">Student</option>
+            <?php foreach ($allowed_types as $role): ?>
+                <option value="<?= $role ?>" <?= (isset($type) && $type === $role) ? 'selected' : '' ?>>
+                    <?= ucfirst($role) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
 
         <button type="submit">Save</button>

@@ -1,14 +1,14 @@
 <?php
+require_once __DIR__ . '/../app/Core/Autoloader.php';
 
-require_once "../core/Autoloader.php";
+use App\Core\Auth;
+use App\Core\SessionManager;
 
-use App\Models\User;
+SessionManager::start();
 
-session_start();
-
-if (isset($_SESSION['user_id'])) {
+if (SessionManager::get('user_id')) {
     header("Location: home.php");
-    exit();
+    exit;
 }
 
 $error = "";
@@ -22,24 +22,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Username and password are required.";
     } else {
 
-        $userModel = new User();
-        $user = $userModel->findByUsername($username);
-
-        if ($user && password_verify($password, $user['password'])) {
-
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['account_type'] = $user['account_type'];
-
+        if (Auth::login($username, $password)) {
             header("Location: home.php");
-            exit();
+            exit;
+        } else {
+            $error = "Invalid username or password.";
         }
-
-        $error = "Invalid username or password.";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -96,8 +87,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <?php endif; ?>
 
     <form method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
         <button type="submit">Login</button>
     </form>
 </div>

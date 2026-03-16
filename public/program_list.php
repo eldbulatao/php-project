@@ -1,9 +1,13 @@
 <?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
+use App\Core\SessionManager;
 use App\Models\Program;
 
-require_login();
+Auth::requireLogin();
+
+$role = SessionManager::get('account_type') ?? 'guest';
 
 $programModel = new Program();
 $programs = $programModel->getAll();
@@ -100,7 +104,8 @@ $programs = $programModel->getAll();
         <div class="top-links">
             <a href="home.php">← Back to Home</a>
         </div>
-        <?php if (in_array($_SESSION['account_type'], ['admin', 'staff'])): ?>
+
+        <?php if (in_array($role, ['admin', 'staff'])): ?>
             <a class="btn" href="program_new.php">Add New Program</a>
         <?php endif; ?>
         
@@ -112,18 +117,18 @@ $programs = $programModel->getAll();
                 <th>Action</th>
             </tr>
 
-            <?php foreach ($programs as $row) { ?>
+            <?php foreach ($programs as $row): ?>
             <tr>
-                <td><?= $row['code'] ?></td>
-                <td><?= $row['title'] ?></td>
-                <td><?= $row['years'] ?></td>
+                <td><?= htmlspecialchars($row['code']) ?></td>
+                <td><?= htmlspecialchars($row['title']) ?></td>
+                <td><?= htmlspecialchars($row['years']) ?></td>
                 <td>
-                    <?php if (in_array($_SESSION['account_type'], ['admin', 'staff'])): ?>
-                        <a href="program_edit.php?program_id=<?= $row['program_id'] ?>">Edit</a>
+                    <?php if (in_array($role, ['admin', 'staff'])): ?>
+                        <a href="program_edit.php?program_id=<?= htmlspecialchars($row['program_id']) ?>">Edit</a>
                     <?php endif; ?>
                 </td>
             </tr>
-            <?php } ?>
+            <?php endforeach; ?>
 
         </table>
     </div>

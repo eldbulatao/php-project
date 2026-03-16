@@ -1,22 +1,34 @@
 <?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
 use App\Models\Subject;
 
-require_staff_or_admin();
+Auth::requireStaffOrAdmin();
 
 $subjectModel = new Subject();
 $error = "";
 
-$id = $_GET["subject_id"];
+$id = $_GET['subject_id'] ?? null;
+
+if (!$id || !is_numeric($id)) {
+    header("Location: subject_list.php");
+    exit();
+}
+
 $subject = $subjectModel->getById($id);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $code  = trim($_POST["code"]);
-    $title = trim($_POST["title"]);
-    $unit  = $_POST["unit"];
+if (!$subject) {
+    header("Location: subject_list.php");
+    exit();
+}
 
-    if ($code == "" || $title == "") {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $code  = trim($_POST['code'] ?? '');
+    $title = trim($_POST['title'] ?? '');
+    $unit  = $_POST['unit'] ?? '';
+
+    if ($code === '' || $title === '') {
         $error = "Code and Title are required.";
     } elseif (!is_numeric($unit) || $unit <= 0) {
         $error = "Unit must be a number greater than 0.";
@@ -25,6 +37,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: subject_list.php");
         exit();
     }
+
+    $subject['code'] = $code;
+    $subject['title'] = $title;
+    $subject['unit'] = $unit;
 }
 ?>
 
@@ -131,17 +147,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h2>Edit Subject</h2>
         <a href="subject_list.php">← Back to List</a><br><br>
 
-        <?php if ($error) echo "<div class='error'>$error</div>"; ?>
+        <?php if ($error) echo "<div class='error'>" . htmlspecialchars($error) . "</div>"; ?>
 
         <form method="post">
             <label>Code</label>
-            <input type="text" name="code" value="<?= $subject['code'] ?>">
+            <input type="text" name="code" value="<?= htmlspecialchars($subject['code']) ?>">
 
             <label>Title</label>
-            <input type="text" name="title" value="<?= $subject['title'] ?>">
+            <input type="text" name="title" value="<?= htmlspecialchars($subject['title']) ?>">
 
             <label>Unit</label>
-            <input type="number" name="unit" value="<?= $subject['unit'] ?>">
+            <input type="number" name="unit" value="<?= htmlspecialchars($subject['unit']) ?>">
 
             <button type="submit">Update</button>
         </form>

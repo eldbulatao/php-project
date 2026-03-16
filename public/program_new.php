@@ -1,19 +1,21 @@
 <?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
+use App\Core\SessionManager;
 use App\Models\Program;
 
-require_staff_or_admin();
+Auth::requireStaffOrAdmin();
 
 $programModel = new Program();
 $error = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $code  = trim($_POST["code"]);
     $title = trim($_POST["title"]);
     $years = $_POST["years"];
 
-    if ($code == "" || $title == "") {
+    if ($code === "" || $title === "") {
         $error = "Code and Title are required.";
     } elseif (!is_numeric($years) || $years < 1 || $years > 6) {
         $error = "Years must be between 1 and 6.";
@@ -127,17 +129,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <h2>Add New Program</h2>
         <a href="program_list.php">← Back to List</a><br><br>
-        <?php if ($error) echo "<div class='error'>$error</div>"; ?>
+
+        <?php if ($error): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
         <form method="post">
             <label>Code</label>
-            <input type="text" name="code">
+            <input type="text" name="code" value="<?= htmlspecialchars($_POST['code'] ?? '') ?>">
 
             <label>Title</label>
-            <input type="text" name="title">
+            <input type="text" name="title" value="<?= htmlspecialchars($_POST['title'] ?? '') ?>">
 
             <label>Years</label>
-            <input type="number" name="years">
+            <input type="number" name="years" value="<?= htmlspecialchars($_POST['years'] ?? '') ?>">
 
             <button type="submit">Save</button>
         </form>

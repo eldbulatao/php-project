@@ -1,7 +1,17 @@
 <?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
-require_login();
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Auth;
+use App\Models\User;
+
+Auth::requireLogin();
+
+$userModel = new User();
+$userId = Auth::userId();
+$user = $userModel->getById($userId);
+
+$username = $user['username'] ?? 'Unknown';
+$role = $user['account_type'] ?? 'Unknown';
 ?>
 
 <!DOCTYPE html>
@@ -13,109 +23,54 @@ require_login();
             font-family: Arial, sans-serif;
             background-color: #9b6eb4;
             margin: 0;
-            text-align: center;
             min-height: 100vh;
-
             display: flex;
             justify-content: center;
-            align-items: center; 
+            align-items: center;
         }
 
         .container {
             max-width: 600px;
-            margin: 0 auto; 
+            width: 100%;
             background: white;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            text-align: center;
         }
 
         h1, h2 {
-            margin-top: 0;
+            margin: 0 0 20px 0;
             color: #333;
         }
 
-        a {
-            text-decoration: none;
-            color: #8100cc;
-            font-weight: bold;
-        }
-
-        .top-links { margin-bottom: 15px; }
-
         .btn {
             display: inline-block;
-            padding: 8px 14px;
-            background-color: #8100cc;
-            color: white;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        .btn:hover { background-color: #490464;}
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th {
-            background-color: #8100cc;
-            color: white;
-            text-align: left;
-            padding: 10px;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:hover { background-color: #f1f1f1; }
-
-        label { font-weight: bold; }
-
-        input[type="text"],
-        input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
             padding: 10px 16px;
             background-color: #8100cc;
             color: white;
-            border: none;
             border-radius: 4px;
-            cursor: pointer;
+            margin: 8px 0;
+            text-decoration: none;
         }
 
-        button:hover { background-color: #490464; }
-
-        .error {
-            color: red;
-            margin-bottom: 15px;
-        }
+        .btn:hover { background-color: #490464; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2> Welcome, <?= $_SESSION['username'] ?> (<?= $_SESSION['account_type'] ?>)</h2>
-        <h1>School Encoding Module</h1>
-        
-        <a class="btn" href="program_list.php">Manage Programs</a><br>
-        <a class="btn" href="subject_list.php">Manage Subjects</a><br>
+        <h1>Welcome, <?= htmlspecialchars($username) ?> (<?= htmlspecialchars($role) ?>)</h1>
+        <h2>School Encoding Module</h2>
 
-        <a class="btn" href="change_password.php">Change Password</a><br>
-        <?php if ($_SESSION['account_type'] === 'admin'): ?>
-            <a class="btn" href="users_list.php">User Accounts</a><br>
-        <?php endif; ?>
-        <a class="btn" href="logout.php">Logout</a>
+        <div class="top-links">
+            <a class="btn" href="program_list.php">Manage Programs</a><br>
+            <a class="btn" href="subject_list.php">Manage Subjects</a><br>
+            <a class="btn" href="change_password.php">Change Password</a><br>
+            <?php if ($role === 'admin'): ?>
+                <a class="btn" href="users_list.php">User Accounts</a><br>
+            <?php endif; ?>
+            <a class="btn" href="logout.php">Logout</a>
+        </div>
     </div>
 </body>
 </html>
