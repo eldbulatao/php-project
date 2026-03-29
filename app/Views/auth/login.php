@@ -1,36 +1,3 @@
-<?php
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Core\SessionManager;
-
-SessionManager::start();
-
-if (SessionManager::get('user_id')) {
-    header("Location: home.php");
-    exit;
-}
-
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
-
-    if ($username === "" || $password === "") {
-        $error = "Username and password are required.";
-    } else {
-
-        if (Auth::login($username, $password)) {
-            header("Location: home.php");
-            exit;
-        } else {
-            $error = "Invalid username or password.";
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html>
 <head>

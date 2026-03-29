@@ -1,15 +1,3 @@
-<?php
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Models\User;
-
-Auth::requireAdmin();
-
-$userModel = new User();
-$users = $userModel->getAll();
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -99,9 +87,9 @@ $users = $userModel->getAll();
 <div class="container">
     <h2>Users</h2>
     <div class="top-links">
-        <a href="home.php">← Back to Home</a>
+        <a href="index.php?controller=home&action=index">← Back to Home</a>
     </div>
-    <a class="btn" href="users_new.php">Add User</a>
+    <a class="btn" href="index.php?controller=user&action=new">Add User</a>
 
     <table>
         <tr>
@@ -120,7 +108,7 @@ $users = $userModel->getAll();
             <td><?= htmlspecialchars($u['updated_on']) ?></td>
             <td>
                 <?php if ($u['account_type'] !== 'admin'): ?>
-                    <a href="users_edit.php?id=<?= htmlspecialchars($u['id']) ?>">Edit</a>
+                    <a href="index.php?controller=user&action=edit&id=<?= htmlspecialchars($u['id']) ?>">Edit</a>
                 <?php endif; ?>
             </td>
         </tr>
@@ -130,4 +118,3 @@ $users = $userModel->getAll();
 </div>
 </body>
 </html>
-

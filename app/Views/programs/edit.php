@@ -1,36 +1,7 @@
-<?php
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Core\SessionManager;
-use App\Models\Program;
-
-Auth::requireStaffOrAdmin();
-
-$programModel = new Program();
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $code  = trim($_POST["code"]);
-    $title = trim($_POST["title"]);
-    $years = $_POST["years"];
-
-    if ($code === "" || $title === "") {
-        $error = "Code and Title are required.";
-    } elseif (!is_numeric($years) || $years < 1 || $years > 6) {
-        $error = "Years must be between 1 and 6.";
-    } else {
-        $programModel->create($code, $title, $years);
-        header("Location: program_list.php");
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Program</title>
+    <title>Edit Program</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             display: flex;
             justify-content: center; 
-            align-items: center;   
+            align-items: center;     
         }
 
         .container {
@@ -76,26 +47,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         .btn:hover { background-color: #490464;}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th {
-            background-color: #8100cc;
-            color: white;
-            text-align: left;
-            padding: 10px;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:hover { background-color: #f1f1f1; }
-
         label { font-weight: bold; }
 
         input[type="text"],
@@ -127,24 +78,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
     <div class="container">
-        <h2>Add New Program</h2>
-        <a href="program_list.php">← Back to List</a><br><br>
+        <h2>Edit Program</h2>
+        <a href="index.php?controller=program&action=list">← Back to List</a><br><br>
 
         <?php if ($error): ?>
             <div class="error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
-        <form method="post">
+        <form method="post" action="index.php?controller=program&action=update">
+            <input type="hidden" name="program_id" value="<?= $program['program_id'] ?>">
             <label>Code</label>
-            <input type="text" name="code" value="<?= htmlspecialchars($_POST['code'] ?? '') ?>">
+            <input type="text" name="code" value="<?= htmlspecialchars($_POST['code'] ?? $program['code']) ?>">
 
             <label>Title</label>
-            <input type="text" name="title" value="<?= htmlspecialchars($_POST['title'] ?? '') ?>">
+            <input type="text" name="title" value="<?= htmlspecialchars($_POST['title'] ?? $program['title']) ?>">
 
             <label>Years</label>
-            <input type="number" name="years" value="<?= htmlspecialchars($_POST['years'] ?? '') ?>">
+            <input type="number" name="years" value="<?= htmlspecialchars($_POST['years'] ?? $program['years']) ?>">
 
-            <button type="submit">Save</button>
+            <button type="submit">Update</button>
         </form>
     </div>
 </body>

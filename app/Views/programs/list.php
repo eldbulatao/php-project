@@ -1,18 +1,3 @@
-<?php
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Core\SessionManager;
-use App\Models\Program;
-
-Auth::requireLogin();
-
-$role = SessionManager::get('account_type') ?? 'guest';
-
-$programModel = new Program();
-$programs = $programModel->getAll();
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -99,38 +84,46 @@ $programs = $programModel->getAll();
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Programs</h2>
-        <div class="top-links">
-            <a href="home.php">← Back to Home</a>
-        </div>
 
-        <?php if (in_array($role, ['admin', 'staff'])): ?>
-            <a class="btn" href="program_new.php">Add New Program</a>
+<h2>Programs</h2>
+
+<a href="index.php?controller=home&action=index">
+← Back to Home
+</a>
+<br><br>
+
+<?php if (in_array($role, ['admin','staff'])): ?>
+    <a class="btn" href="index.php?controller=program&action=new">
+        Add New Program
+    </a>
+<?php endif; ?>
+
+<table border="1" cellpadding="8">
+
+<tr>
+    <th>Code</th>
+    <th>Title</th>
+    <th>Years</th>
+    <th>Action</th>
+</tr>
+
+<?php foreach ($programs as $row): ?>
+<tr>
+    <td><?= htmlspecialchars($row['code']) ?></td>
+    <td><?= htmlspecialchars($row['title']) ?></td>
+    <td><?= htmlspecialchars($row['years']) ?></td>
+
+    <td>
+        <?php if (in_array($role, ['admin','staff'])): ?>
+            <a href="index.php?controller=program&action=edit&program_id=<?= $row['program_id'] ?>">
+                Edit
+            </a>
         <?php endif; ?>
-        
-        <table>
-            <tr>
-                <th>Code</th>
-                <th>Title</th>
-                <th>Years</th>
-                <th>Action</th>
-            </tr>
+    </td>
+</tr>
+<?php endforeach; ?>
 
-            <?php foreach ($programs as $row): ?>
-            <tr>
-                <td><?= htmlspecialchars($row['code']) ?></td>
-                <td><?= htmlspecialchars($row['title']) ?></td>
-                <td><?= htmlspecialchars($row['years']) ?></td>
-                <td>
-                    <?php if (in_array($role, ['admin', 'staff'])): ?>
-                        <a href="program_edit.php?program_id=<?= htmlspecialchars($row['program_id']) ?>">Edit</a>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            <?php endforeach; ?>
+</table>
 
-        </table>
-    </div>
 </body>
 </html>

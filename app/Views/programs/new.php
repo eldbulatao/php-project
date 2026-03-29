@@ -1,36 +1,7 @@
-<?php
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Core\SessionManager;
-use App\Models\Subject;
-
-Auth::requireStaffOrAdmin();
-
-$subjectModel = new Subject();
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $code  = trim($_POST["code"] ?? '');
-    $title = trim($_POST["title"] ?? '');
-    $unit  = $_POST["unit"] ?? '';
-
-    if ($code === "" || $title === "") {
-        $error = "Code and Title are required.";
-    } elseif (!is_numeric($unit) || $unit <= 0) {
-        $error = "Unit must be a number greater than 0.";
-    } else {
-        $subjectModel->create($code, $title, $unit);
-        header("Location: subject_list.php");
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Subject</title>
+    <title>Add Program</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             display: flex;
             justify-content: center; 
-            align-items: center;     
+            align-items: center;   
         }
 
         .container {
@@ -127,20 +98,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
     <div class="container">
-        <h2>Add New Subject</h2>
-        <a href="subject_list.php">← Back to List</a><br><br>
+        <h2>Add New Program</h2>
+        <a href="index.php?controller=program&action=list">← Back to List</a><br><br>
 
-        <?php if ($error) echo "<div class='error'>" . htmlspecialchars($error) . "</div>"; ?>
+        <?php if ($error): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
-        <form method="post">
+        <form method="post" href="index.php?controller=program&action=new">
             <label>Code</label>
             <input type="text" name="code" value="<?= htmlspecialchars($_POST['code'] ?? '') ?>">
 
             <label>Title</label>
             <input type="text" name="title" value="<?= htmlspecialchars($_POST['title'] ?? '') ?>">
 
-            <label>Unit</label>
-            <input type="number" name="unit" value="<?= htmlspecialchars($_POST['unit'] ?? '') ?>">
+            <label>Years</label>
+            <input type="number" name="years" value="<?= htmlspecialchars($_POST['years'] ?? '') ?>">
 
             <button type="submit">Save</button>
         </form>

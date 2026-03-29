@@ -1,19 +1,3 @@
-<?php
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Models\User;
-
-Auth::requireLogin();
-
-$userModel = new User();
-$userId = Auth::userId();
-$user = $userModel->getById($userId);
-
-$username = $user['username'] ?? 'Unknown';
-$role = $user['account_type'] ?? 'Unknown';
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -58,19 +42,40 @@ $role = $user['account_type'] ?? 'Unknown';
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome, <?= htmlspecialchars($username) ?> (<?= htmlspecialchars($role) ?>)</h1>
-        <h2>School Encoding Module</h2>
 
-        <div class="top-links">
-            <a class="btn" href="program_list.php">Manage Programs</a><br>
-            <a class="btn" href="subject_list.php">Manage Subjects</a><br>
-            <a class="btn" href="change_password.php">Change Password</a><br>
-            <?php if ($role === 'admin'): ?>
-                <a class="btn" href="users_list.php">User Accounts</a><br>
-            <?php endif; ?>
-            <a class="btn" href="logout.php">Logout</a>
-        </div>
-    </div>
+<div class="container">
+
+    <h1>
+        Welcome,
+        <?= htmlspecialchars($username) ?>
+        (<?= htmlspecialchars($role) ?>)
+    </h1>
+
+    <h2>School Encoding Module</h2>
+
+    <a class="btn" href="index.php?controller=program&action=list">
+        Manage Programs
+    </a><br>
+
+    <a class="btn" href="index.php?controller=subject&action=list">
+        Manage Subjects
+    </a><br>
+
+    <a class="btn" href="index.php?controller=user&action=changePassword">
+        Change Password
+    </a><br>
+
+    <?php if ($role === 'admin'): ?>
+        <a class="btn" href="index.php?controller=user&action=list">
+            User Accounts
+        </a><br>
+    <?php endif; ?>
+
+    <a class="btn" href="index.php?controller=auth&action=logout">
+        Logout
+    </a>
+
+</div>
+
 </body>
 </html>

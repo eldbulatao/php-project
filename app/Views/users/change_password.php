@@ -1,41 +1,3 @@
-<?php
-error_reporting(E_ALL & ~E_NOTICE);
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Core\SessionManager;
-use App\Models\User;
-
-Auth::requireLogin();
-
-$userModel = new User();
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    $current = $_POST['current_password'];
-    $new = $_POST['new_password'];
-    $confirm = $_POST['confirm_new_password'];
-
-    $userId = Auth::userId();
-    $user = $userModel->getById($userId);
-
-    if ($current === "" || $new === "" || $confirm === "") {
-        $error = "All fields are required.";
-    } elseif (!$user || !password_verify($current, $user['password'])) {
-        $error = "Current password is incorrect.";
-    } elseif (strlen($new) < 6) {
-        $error = "New password must be at least 6 characters.";
-    } elseif ($new !== $confirm) {
-        $error = "New passwords do not match.";
-    } else {
-        $userModel->changePassword($userId, $new, $userId);
-        header("Location: home.php");
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -109,13 +71,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
 <div class="container">
     <h2>Change Password</h2>
-    <a href="home.php">← Back to Home</a><br><br>
+    <a href="index.php?controller=home&action=index">← Back to Home</a><br><br>
 
     <?php if ($error): ?>
         <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <form method="post">
+    <form method="post" action="index.php?controller=user&action=changePassword">
         <label>Current Password</label>
         <input type="password" name="current_password" required>
 

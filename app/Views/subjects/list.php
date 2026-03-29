@@ -1,17 +1,3 @@
-<?php
-require_once __DIR__ . '/../app/Core/Autoloader.php';
-
-use App\Core\Auth;
-use App\Core\SessionManager;
-use App\Models\Subject;
-
-Auth::requireLogin();
-
-$subjectModel = new Subject();
-$subjects = $subjectModel->getAll();
-$role = SessionManager::get('account_type') ?? 'guest';
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -101,11 +87,11 @@ $role = SessionManager::get('account_type') ?? 'guest';
     <div class="container">
         <h2>Subjects</h2>
         <div class="top-links">
-            <a href="home.php">← Back to Home</a>
+            <a href="index.php?controller=home&action=index">← Back to Home</a>
         </div>
 
         <?php if (in_array($role, ['admin', 'staff'])): ?>
-            <a class="btn" href="subject_new.php">Add New Subject</a>
+            <a class="btn" href="index.php?controller=subject&action=new">Add New Subject</a>
         <?php endif; ?>
 
         <table>
@@ -123,7 +109,7 @@ $role = SessionManager::get('account_type') ?? 'guest';
                 <td><?= htmlspecialchars($row['unit']) ?></td>
                 <td>
                     <?php if (in_array($role, ['admin', 'staff'])): ?>
-                        <a href="subject_edit.php?subject_id=<?= $row['subject_id'] ?>">Edit</a>
+                        <a href="index.php?controller=subject&action=edit&id=<?= $row['subject_id'] ?>">Edit</a>
                     <?php endif; ?>
                 </td>
             </tr>

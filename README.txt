@@ -3,14 +3,6 @@
 ## Overview
 School Encoding Module
 
-## Folder Structure
-- `app/Core/` → Core classes: `Database.php`, `Auth.php`, `SessionManager.php`, `Autoloader.php`
-- `app/Models/` → Business logic models: `User.php`, `Program.php`, `Subject.php`
-- `app/Helpers/` → Optional helpers (Validator, Redirect)
-- `public/` → Frontend pages: login, logout, home, CRUD pages
-- `config/` → Configuration files (e.g., `config.php`)
-- `school.sql` → Database structure and initial data
-
 ## Default Admin Credentials
 - **Username:** admin  
 - **Password:** admin12345
