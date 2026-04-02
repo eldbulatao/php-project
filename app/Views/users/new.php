@@ -1,47 +1,7 @@
-<?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
-use App\Models\User;
-
-require_admin();
-
-$error = "";
-$allowed_types = ['admin', 'staff', 'teacher', 'student'];
-
-$id = $_GET['id'] ?? null;
-if (!$id) {
-    header("Location: users_list.php");
-    exit();
-}
-$userModel = new User();
-$user = $userModel->getById($id);
-
-if (!$user) {
-    header("Location: users_list.php");
-    exit();
-}
-
-/* Handle update */
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = trim($_POST['username']);
-    $type = $_POST['account_type'];
-
-    if ($username === "" || $type === "") {
-        $error = "All fields are required.";
-    } elseif (!in_array($type, $allowed_types)) {
-        $error = "Invalid account type.";
-    } else {
-        $userModel->update($id, $username, $type);
-        header("Location: users_list.php");
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit User</title>
+    <title>New User</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,31 +68,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h2>Edit User</h2>
-    <a href="users_list.php">← Back to List</a><br><br>
+    <h2>Add New User</h2>
+    <a href="index.php?controller=user&action=list">← Back to List</a><br><br>
 
     <?php if ($error): ?>
-        <div class="error"><?= $error ?></div>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <form method="post">
+    <form method="post" action="index.php?controller=user&action=new">
         <label>Username</label>
-        <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
+        <input type="text" name="username" value="<?= isset($username) ? htmlspecialchars($username) : '' ?>" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <label>Confirm Password</label>
+        <input type="password" name="confirm" required>
 
         <label>Account Type</label>
         <select name="account_type" required>
+            <option value="">-- Select Role --</option>
             <?php foreach ($allowed_types as $role): ?>
-                <option value="<?= $role ?>" <?= $user['account_type'] === $role ? 'selected' : '' ?>>
+                <option value="<?= $role ?>" <?= (isset($type) && $type === $role) ? 'selected' : '' ?>>
                     <?= ucfirst($role) ?>
                 </option>
             <?php endforeach; ?>
         </select>
 
-        <button type="submit">Update</button>
+        <button type="submit">Save</button>
     </form>
 </div>
-
 </body>
 </html>

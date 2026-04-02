@@ -1,45 +1,3 @@
-<?php
-
-require_once "../core/Autoloader.php";
-
-use App\Models\User;
-
-session_start();
-
-if (isset($_SESSION['user_id'])) {
-    header("Location: home.php");
-    exit();
-}
-
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
-
-    if ($username === "" || $password === "") {
-        $error = "Username and password are required.";
-    } else {
-
-        $userModel = new User();
-        $user = $userModel->findByUsername($username);
-
-        if ($user && password_verify($password, $user['password'])) {
-
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['account_type'] = $user['account_type'];
-
-            header("Location: home.php");
-            exit();
-        }
-
-        $error = "Invalid username or password.";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -96,8 +54,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <?php endif; ?>
 
     <form method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
         <button type="submit">Login</button>
     </form>
 </div>

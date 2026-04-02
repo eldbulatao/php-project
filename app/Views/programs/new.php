@@ -1,30 +1,3 @@
-<?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
-use App\Models\Program;
-
-require_staff_or_admin();
-
-$programModel = new Program();
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $code  = trim($_POST["code"]);
-    $title = trim($_POST["title"]);
-    $years = $_POST["years"];
-
-    if ($code == "" || $title == "") {
-        $error = "Code and Title are required.";
-    } elseif (!is_numeric($years) || $years < 1 || $years > 6) {
-        $error = "Years must be between 1 and 6.";
-    } else {
-        $programModel->create($code, $title, $years);
-        header("Location: program_list.php");
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -126,18 +99,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container">
         <h2>Add New Program</h2>
-        <a href="program_list.php">← Back to List</a><br><br>
-        <?php if ($error) echo "<div class='error'>$error</div>"; ?>
+        <a href="index.php?controller=program&action=list">← Back to List</a><br><br>
 
-        <form method="post">
+        <?php if ($error): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <form method="post" href="index.php?controller=program&action=new">
             <label>Code</label>
-            <input type="text" name="code">
+            <input type="text" name="code" value="<?= htmlspecialchars($_POST['code'] ?? '') ?>">
 
             <label>Title</label>
-            <input type="text" name="title">
+            <input type="text" name="title" value="<?= htmlspecialchars($_POST['title'] ?? '') ?>">
 
             <label>Years</label>
-            <input type="number" name="years">
+            <input type="number" name="years" value="<?= htmlspecialchars($_POST['years'] ?? '') ?>">
 
             <button type="submit">Save</button>
         </form>

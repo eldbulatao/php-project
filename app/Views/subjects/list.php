@@ -1,14 +1,3 @@
-<?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
-use App\Models\Subject;
-
-require_login();
-
-$subjectModel = new Subject();
-$subjects = $subjectModel->getAll();
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -98,10 +87,11 @@ $subjects = $subjectModel->getAll();
     <div class="container">
         <h2>Subjects</h2>
         <div class="top-links">
-            <a href="home.php">← Back to Home</a>
+            <a href="index.php?controller=home&action=index">← Back to Home</a>
         </div>
-        <?php if (in_array($_SESSION['account_type'], ['admin', 'staff'])): ?>
-            <a class="btn" href="subject_new.php">Add New Subject</a>
+
+        <?php if (in_array($role, ['admin', 'staff'])): ?>
+            <a class="btn" href="index.php?controller=subject&action=new">Add New Subject</a>
         <?php endif; ?>
 
         <table>
@@ -112,18 +102,18 @@ $subjects = $subjectModel->getAll();
                 <th>Action</th>
             </tr>
 
-            <?php foreach ($subjects as $row) { ?>
+            <?php foreach ($subjects as $row): ?>
             <tr>
-                <td><?= $row['code'] ?></td>
-                <td><?= $row['title'] ?></td>
-                <td><?= $row['unit'] ?></td>
+                <td><?= htmlspecialchars($row['code']) ?></td>
+                <td><?= htmlspecialchars($row['title']) ?></td>
+                <td><?= htmlspecialchars($row['unit']) ?></td>
                 <td>
-                    <?php if (in_array($_SESSION['account_type'], ['admin', 'staff'])): ?>
-                        <a href="subject_edit.php?subject_id=<?= $row['subject_id'] ?>">Edit</a>
+                    <?php if (in_array($role, ['admin', 'staff'])): ?>
+                        <a href="index.php?controller=subject&action=edit&id=<?= $row['subject_id'] ?>">Edit</a>
                     <?php endif; ?>
                 </td>
             </tr>
-            <?php } ?>
+            <?php endforeach; ?>
         </table>
     </div>
 </body>

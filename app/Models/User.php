@@ -1,24 +1,27 @@
 <?php
-namespace App\Models;
-use Config\Database;
 
-class User {
+namespace App\Models;
+
+use App\Core\Database;
+
+class User
+{
     private $conn;
     private $table = "users";
 
-    public function __construct() {
-        $database = new Database();
-        $this->conn = $database->conn;
+    public function __construct()
+    {
+        $this->conn = Database::connect();
     }
 
-    // GET ALL USERS
-    public function getAll() {
+    public function getAll()
+    {
         $result = $this->conn->query("SELECT * FROM {$this->table}");
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // GET USER BY ID
-    public function getById($id) {
+    public function getById($id)
+    {
         $stmt = $this->conn->prepare(
             "SELECT * FROM {$this->table} WHERE id=?"
         );
@@ -27,8 +30,8 @@ class User {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // FIND BY USERNAME (for login)
-    public function findByUsername($username) {
+    public function findByUsername($username)
+    {
         $stmt = $this->conn->prepare(
             "SELECT * FROM {$this->table} WHERE username=?"
         );
@@ -37,8 +40,8 @@ class User {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // CREATE USER
-    public function create($username, $password, $type, $created_by) {
+    public function create($username, $password, $type, $createdBy)
+    {
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $this->conn->prepare(
@@ -47,24 +50,24 @@ class User {
              VALUES (?, ?, ?, NOW(), ?)"
         );
 
-        $stmt->bind_param("sssi", $username, $hash, $type, $created_by);
+        $stmt->bind_param("sssi", $username, $hash, $type, $createdBy);
         return $stmt->execute();
     }
 
-    // UPDATE USER (without password)
-    public function update($id, $username, $type) {
+    public function update($id, $username, $type, $updatedBy)
+    {
         $stmt = $this->conn->prepare(
             "UPDATE {$this->table}
              SET username=?, account_type=?, updated_on=NOW(), updated_by=?
              WHERE id=?"
         );
 
-        $stmt->bind_param("ssii", $username, $type, $_SESSION['user_id'], $id);
+        $stmt->bind_param("ssii", $username, $type, $updatedBy, $id);
         return $stmt->execute();
     }
 
-    // CHANGE PASSWORD
-    public function changePassword($id, $newPassword) {
+    public function changePassword($id, $newPassword, $updatedBy)
+    {
         $hash = password_hash($newPassword, PASSWORD_DEFAULT);
 
         $stmt = $this->conn->prepare(
@@ -73,7 +76,7 @@ class User {
              WHERE id=?"
         );
 
-        $stmt->bind_param("sii", $hash, $_SESSION['user_id'], $id);
+        $stmt->bind_param("sii", $hash, $updatedBy, $id);
         return $stmt->execute();
     }
 }

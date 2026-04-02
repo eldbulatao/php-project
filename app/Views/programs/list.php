@@ -1,53 +1,13 @@
-<?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
-use App\Models\Subject;
-
-require_staff_or_admin();
-
-$subjectModel = new Subject();
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $code  = trim($_POST["code"]);
-    $title = trim($_POST["title"]);
-    $unit  = $_POST["unit"];
-
-    if ($code == "" || $title == "") {
-        $error = "Code and Title are required.";
-    } elseif (!is_numeric($unit) || $unit <= 0) {
-        $error = "Unit must be a number greater than 0.";
-    } else {
-        $subjectModel->create($code, $title, $unit);
-        header("Location: subject_list.php");
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Subject</title>
+    <title>Program List</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #9b6eb4;
+            background-color: #f4f6f8;
             margin: 0;
-            min-height: 100vh;
-
-            display: flex;
-            justify-content: center; 
-            align-items: center;     
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto; 
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            padding: 40px;
         }
 
         h1, h2 {
@@ -124,24 +84,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Add New Subject</h2>
-        <a href="subject_list.php">← Back to List</a><br><br>
 
-        <?php if ($error) echo "<div class='error'>$error</div>"; ?>
+<h2>Programs</h2>
 
-        <form method="post">
-            <label>Code</label>
-            <input type="text" name="code">
+<a href="index.php?controller=home&action=index">
+← Back to Home
+</a>
+<br><br>
 
-            <label>Title</label>
-            <input type="text" name="title">
+<?php if (in_array($role, ['admin','staff'])): ?>
+    <a class="btn" href="index.php?controller=program&action=new">
+        Add New Program
+    </a>
+<?php endif; ?>
 
-            <label>Unit</label>
-            <input type="number" name="unit">
+<table border="1" cellpadding="8">
 
-            <button type="submit">Save</button>
-        </form>
-    </div>
+<tr>
+    <th>Code</th>
+    <th>Title</th>
+    <th>Years</th>
+    <th>Action</th>
+</tr>
+
+<?php foreach ($programs as $row): ?>
+<tr>
+    <td><?= htmlspecialchars($row['code']) ?></td>
+    <td><?= htmlspecialchars($row['title']) ?></td>
+    <td><?= htmlspecialchars($row['years']) ?></td>
+
+    <td>
+        <?php if (in_array($role, ['admin','staff'])): ?>
+            <a href="index.php?controller=program&action=edit&program_id=<?= $row['program_id'] ?>">
+                Edit
+            </a>
+        <?php endif; ?>
+    </td>
+</tr>
+<?php endforeach; ?>
+
+</table>
+
 </body>
 </html>

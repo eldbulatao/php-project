@@ -1,37 +1,7 @@
-<?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
-use App\Models\Program;
-
-require_staff_or_admin();
-
-$programModel = new Program();
-$error = "";
-
-$id = $_GET["program_id"];
-$program = $programModel->getById($id);
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $code  = trim($_POST["code"]);
-    $title = trim($_POST["title"]);
-    $years = $_POST["years"];
-
-    if ($code == "" || $title == "") {
-        $error = "Code and Title are required.";
-    } elseif (!is_numeric($years) || $years < 1 || $years > 6) {
-        $error = "Years must be between 1 and 6.";
-    } else {
-        $programModel->update($id, $code, $title, $years);
-        header("Location: program_list.php");
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Program</title>
+    <title>Edit Subject</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -77,26 +47,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .btn:hover { background-color: #490464;}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th {
-            background-color: #8100cc;
-            color: white;
-            text-align: left;
-            padding: 10px;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:hover { background-color: #f1f1f1; }
-
         label { font-weight: bold; }
 
         input[type="text"],
@@ -128,19 +78,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="container">
-        <h2>Edit Program</h2>
-        <a href="program_list.php">← Back to List</a><br><br>
-        <?php if ($error) echo "<div class='error'>$error</div>"; ?>
+        <h2>Edit Subject</h2>
+        <a href="index.php?controller=subject&action=list">← Back to List</a><br><br>
 
-        <form method="post">
+        <?php if ($error) echo "<div class='error'>" . htmlspecialchars($error) . "</div>"; ?>
+
+        <form method="post" action="index.php?controller=subject&action=update">
+            <input type="hidden" name="subject_id" value="<?= $subject['subject_id'] ?>">
+
             <label>Code</label>
-            <input type="text" name="code" value="<?= $program['code'] ?>">
+            <input type="text" name="code" value="<?= htmlspecialchars($subject['code']) ?>">
 
             <label>Title</label>
-            <input type="text" name="title" value="<?= $program['title'] ?>">
+            <input type="text" name="title" value="<?= htmlspecialchars($subject['title']) ?>">
 
-            <label>Years</label>
-            <input type="number" name="years" value="<?= $program['years'] ?>">
+            <label>Unit</label>
+            <input type="number" name="unit" value="<?= htmlspecialchars($subject['unit']) ?>">
 
             <button type="submit">Update</button>
         </form>

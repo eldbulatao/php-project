@@ -1,14 +1,3 @@
-<?php
-require_once "../core/Autoloader.php";
-require_once "../core/Auth.php";
-use App\Models\User;
-
-require_admin();
-
-$userModel = new User();
-$users = $userModel->getAll();
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -95,14 +84,14 @@ $users = $userModel->getAll();
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Users</h2>
-        <div class="top-links">
-            <a href="home.php">← Back to Home</a>
-        </div>
-        <a class="btn" href="users_new.php">Add User</a>
+<div class="container">
+    <h2>Users</h2>
+    <div class="top-links">
+        <a href="index.php?controller=home&action=index">← Back to Home</a>
+    </div>
+    <a class="btn" href="index.php?controller=user&action=new">Add User</a>
 
-        <table>
+    <table>
         <tr>
             <th>Username</th>
             <th>Account Type</th>
@@ -110,22 +99,22 @@ $users = $userModel->getAll();
             <th>Updated</th>
             <th>Action</th>
         </tr>
-        <?php foreach ($users as $u) { ?>
+
+        <?php foreach ($users as $u): ?>
         <tr>
-            <td><?= $u['username'] ?></td>
-            <td><?= $u['account_type'] ?></td>
-            <td><?= $u['created_on'] ?></td>
-            <td><?= $u['updated_on'] ?></td>
+            <td><?= htmlspecialchars($u['username']) ?></td>
+            <td><?= htmlspecialchars($u['account_type']) ?></td>
+            <td><?= htmlspecialchars($u['created_on']) ?></td>
+            <td><?= htmlspecialchars($u['updated_on']) ?></td>
             <td>
                 <?php if ($u['account_type'] !== 'admin'): ?>
-                    <a href="users_edit.php?id=<?= $u['id'] ?>">Edit</a>
+                    <a href="index.php?controller=user&action=edit&id=<?= htmlspecialchars($u['id']) ?>">Edit</a>
                 <?php endif; ?>
             </td>
         </tr>
-        <?php } ?>
-        </table>
-        
-    </div>
+        <?php endforeach; ?>
+
+    </table>
+</div>
 </body>
 </html>
-
